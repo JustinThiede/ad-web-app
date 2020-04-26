@@ -5,7 +5,7 @@
             <h1>Benutzer löschen</h1>
             <?php if (isset($data['dn'])): ?>
                 <form action="/user/delete" method="POST">
-                    <input type="hidden" name="delete" value="<?php echo $data['dn'] ?>">
+                    <input type="hidden" name="dn" value="<?php echo $data['dn'] ?>">
 
                     <input class="form-control form-inputs" type="text" name="cn" value="<?php if (isset($data['cn'])): echo $data['cn']; endif; ?>" required readonly>
                     <br>

@@ -62,4 +62,8 @@ class LDAP
 
         return $users;
     }
+
+    public function deleteObject(string $dn) {
+        return ldap_delete($this->con, $dn);
+    }
 }

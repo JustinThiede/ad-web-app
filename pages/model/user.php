@@ -28,4 +28,8 @@ class Model
     public function getUsers() {
         return $this->ldap->searchUsers();
     }
+
+    public function deleteUser(string $dn) {
+        return $this->ldap->deleteObject($dn);
+    }
 }

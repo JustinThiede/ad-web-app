@@ -15,6 +15,8 @@
                         <?php foreach ($data as $value): ?>
                             <form action="/user/update" method="post">
                                 <input type="hidden" name="dn" value="<?php echo $value['dn'] ?>">
+                                <input type="hidden" name="cn" value="<?php echo $value['cn'] ?>">
+
                                 <tr>
                                     <td><?php echo $value['cn'] ?></td>
                                     <td><?php echo $value['loginName'] ?></td>
