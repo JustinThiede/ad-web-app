@@ -13,6 +13,7 @@
                     <h1>Benutzer bearbeiten</h1>
                     <?php if (isset($data) && gettype($data) != 'array'): echo $data; else:?>
                         <form action="/user/add" method="POST" enctype="multipart/form-data" id="usereditor">
+                            <input type="hidden" name="edit" value="<?php if (isset($data['dn'])): echo $data['dn']; endif; ?>">
                             Vorname:<br>
                             <input class="form-control form-inputs" type="text" name="firstName" value="<?php if (isset($data['firstName'])): echo $data['firstName']; endif; ?>" required>
                             <br>

@@ -18,9 +18,6 @@ class Controller
     protected Model     $model;
     protected Sanitizer $sanitizer;
     protected string    $action;
-    protected string    $delete;
-    protected string    $dn;
-    protected string    $cn;
 
     public function __construct($action)
     {
@@ -28,9 +25,11 @@ class Controller
         $this->model     = new Model();
         $this->sanitizer = new Sanitizer();
         $this->action    = !empty($action) ? $action : 'index'; // if no action given, use index as default
-        $this->delete    = !empty($_POST['delete']) ? $this->sanitizer->strip($_POST['delete']) : '';
-        $this->dn        = !empty($_POST['dn']) ? $this->sanitizer->strip($_POST['dn']) : '';
-        $this->cn        = !empty($_POST['cn']) ? $this->sanitizer->strip($_POST['cn']) : '';
+
+        // Set class variables to post variables
+        foreach ($_POST as $key => $value) {
+            $this->{$key} = !empty($value) ? $this->sanitizer->strip($value) : '';
+        }
 
         $this->callpage();
     }
@@ -77,7 +76,28 @@ class Controller
 
     protected function add(): void
     {
-        $this->view->getview('user', 'add');
+        if (empty($_POST)) {
+            $this->view->getview('user', 'add');
+        } else if (empty($this->edit)) {
+            $pwSame    = $this->model->samePw($this->pw, $this->pwConfirm);
+            $pwComplex = $this->model->pwComplexity($this->pw);
+
+            if (!$pwSame) {
+                $this->view->getview('user', 'add', 'Die Passwörter müssen gleich sein.');
+            }
+
+            if (!$pwComplex) {
+                $this->view->getview('user', 'add', 'Das Passwort muss mindestens 8 Zeichen, Grossbuchstaben, Kleinbuchstaben und entweder ein Spezialzeichen oder eine Zahl enthalten.');
+            }
+
+            
+
+        } else {
+
+        }
+
+
+
     }
 
     // Call delete or edit pages

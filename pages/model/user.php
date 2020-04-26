@@ -25,11 +25,36 @@ class Model
         $this->ldap           = new LDAP();
     }
 
-    public function getUsers() {
+    public function getUsers()
+    {
         return $this->ldap->searchUsers();
     }
 
-    public function deleteUser(string $dn) {
+    public function deleteUser(string $dn)
+    {
         return $this->ldap->deleteObject($dn);
+    }
+
+    public function samePw(string $pw, string $pwConfirm)
+    {
+        if ($pw != $pwConfirm) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function pwComplexity(string $pw)
+    {
+        $uppercase    = preg_match('@[A-Z]@', $pw);
+        $lowercase    = preg_match('@[a-z]@', $pw);
+        $specialChars = preg_match('@[^\w]@', $pw);
+        $number       = preg_match('@[0-9]@', $pw);
+
+        if (!$uppercase || !$lowercase || (!$specialChars && !$number) || strlen($pw) < 8) {
+            return false;
+        }
+
+        return true;
     }
 }

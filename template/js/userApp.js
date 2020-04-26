@@ -24,4 +24,12 @@ $(function(){
             }
         },
     });
+
+    $('.back-button').on('click', goBack);
+
+    // Go back in history state
+    function goBack() {
+        console.log("test");
+        window.history.back();
+    }
 });
