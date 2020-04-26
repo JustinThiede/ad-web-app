@@ -16,10 +16,16 @@ class Model
 {
     protected MiniOrm        $db;
     protected SessionManager $sessionManager;
+    protected LDAP           $ldap;
 
     public function __construct()
     {
         $this->db             = new MiniOrm(CONF_DB_HOST, CONF_DB_DB, CONF_DB_USER, CONF_DB_PW, CONF_DB_CHARSET);
         $this->sessionManager = new SessionManager();
+        $this->ldap           = new LDAP();
+    }
+
+    public function getUsers() {
+        return $this->ldap->searchUsers();
     }
 }

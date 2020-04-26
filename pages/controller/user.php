@@ -38,6 +38,18 @@ class Controller
     protected function callpage(): void
     {
         switch($this->action) {
+            case 'add':
+                $this->addUser();
+            break;
+
+            case 'delete':
+                $this->deleteUser();
+            break;
+
+            case 'update':
+                $this->updateUserData();
+            break;
+
             default:
                 $this->index();
         }
@@ -51,6 +63,7 @@ class Controller
      */
     protected function index(): void
     {
-        $this->view->getview('user', 'index');
+        $users = $this->model->getUsers();
+        $this->view->getview('user', 'index', $users);
     }
 }
