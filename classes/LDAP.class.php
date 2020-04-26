@@ -63,7 +63,36 @@ class LDAP
         return $users;
     }
 
-    public function deleteObject(string $dn) {
+    public function createObject(string $firstName, string $lastName, string $loginName, string $pw)
+    {
+        $cn    = $firstName . ' ' . $lastName;
+        $dn    = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch';
+        $uniPw = iconv('UTF-8', 'UTF-16LE', '"' . $pw . '"');
+
+        $ldaprecord['cn'] = $cn;
+        $ldaprecord['givenName'] = $firstName;
+        $ldaprecord['sn'] = $lastName;
+        $ldaprecord['userprincipalname'] = $loginName . '@' . CONF_LDAP_DOMAIN;
+        //$ldaprecord['unicodepwd'] = $uniPw;
+        $ldaprecord['objectclass'][0] = "top";
+        $ldaprecord['objectclass'][1] = "person";
+        $ldaprecord['objectclass'][2] = "organizationalPerson";
+        $ldaprecord['objectclass'][3] = "user";
+
+        return ldap_add($this->con, $dn, $ldaprecord);
+    }
+
+    public function objectExists(string $loginName)
+    {
+        $base_dn   = "CN=Users, DC=smirnyag, DC=ch";
+        $filter    = '(&(cn=' . $loginName . '))'; // Only people and exclude the user that the webapp uses
+        $sr        = ldap_search($this->con, $base_dn, $filter);
+
+        return $sr;
+    }
+
+    public function deleteObject(string $dn)
+    {
         return ldap_delete($this->con, $dn);
     }
 }

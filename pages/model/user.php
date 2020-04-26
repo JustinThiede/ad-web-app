@@ -35,6 +35,20 @@ class Model
         return $this->ldap->deleteObject($dn);
     }
 
+    public function createUser(string $firstName, string $lastName, string $loginName, string $pw)
+    {
+        return $this->ldap->createObject($firstName, $lastName, $loginName, $pw);
+    }
+
+    public function checkExist(string $loginName)
+    {
+        if (!$this->ldap->objectExists($loginName)) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function samePw(string $pw, string $pwConfirm)
     {
         if ($pw != $pwConfirm) {

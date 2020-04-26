@@ -81,17 +81,30 @@ class Controller
         } else if (empty($this->edit)) {
             $pwSame    = $this->model->samePw($this->pw, $this->pwConfirm);
             $pwComplex = $this->model->pwComplexity($this->pw);
+            $exists    = $this->model->checkExist($this->loginName);
 
             if (!$pwSame) {
                 $this->view->getview('user', 'add', 'Die Passwörter müssen gleich sein.');
+                return;
             }
 
             if (!$pwComplex) {
                 $this->view->getview('user', 'add', 'Das Passwort muss mindestens 8 Zeichen, Grossbuchstaben, Kleinbuchstaben und entweder ein Spezialzeichen oder eine Zahl enthalten.');
+                return;
             }
 
-            
+            if ($exists) {
+                $this->view->getview('user', 'add', 'Der Benutzer existiert bereits.');
+                return;
+            }
 
+            $created = $this->model->createUser($this->firstName, $this->lastName, $this->loginName, $this->pw);
+
+            if (!$created) {
+                $this->view->getview('user', 'add', 'Der Benutzer konnte nicht hinzugefügt werden.');
+            } else {
+                $this->view->getview('user', 'add', 'Der Benutzer wurde erfolgreich hinzugefügt.');
+            }
         } else {
 
         }
