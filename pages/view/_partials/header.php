@@ -22,8 +22,8 @@
             <div class="row h-100 no-gutters">
                 <div class="col-xl-2 col-12">
                     <div class="side-nav">
-                        <a class="d-block" href="/user/index">Benutzer</a>
-                        <a class="d-block" href="/group/index">Gruppen</a>
+                        <a class="d-block" href="/user/index">Benutzer-Übersicht</a>
+                        <a class="d-block" href="/group/index">Gruppen-Übersicht</a>
                         <?php require_once("pages/view/_partials/logout_form.php"); ?>
                     </div>
                 </div>

@@ -31,7 +31,7 @@ class Controller
         $this->delete    = !empty($_POST['delete']) ? $this->sanitizer->strip($_POST['delete']) : '';
         $this->dn        = !empty($_POST['dn']) ? $this->sanitizer->strip($_POST['dn']) : '';
         $this->cn        = !empty($_POST['cn']) ? $this->sanitizer->strip($_POST['cn']) : '';
-        echo $this->cn;
+
         $this->callpage();
     }
 
@@ -77,8 +77,7 @@ class Controller
 
     protected function add(): void
     {
-        $users = $this->model->getUsers();
-        $this->view->getview('user', 'index', $users);
+        $this->view->getview('user', 'add');
     }
 
     // Call delete or edit pages
