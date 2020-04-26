@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 /**
-*
+* Connection and interaction with LDAP server
 *
 *
 * PHP version 7.4
@@ -30,8 +30,13 @@ class LDAP
         }
     }
 
-    // Strip out potentially dangerous inputs
-    public function searchUsers()
+    /**
+     *
+     * Searches for users in the LDAP server
+     *
+     * @return array
+     */
+    public function searchUsers(): array
     {
         $base_dn   = "CN=Users, DC=smirnyag, DC=ch";
         $filter    = "(&(objectClass=person)(!(cn=ad-web)))"; // Only people and exclude the user that the webapp uses
@@ -47,7 +52,7 @@ class LDAP
             }
 
             if (isset($res['memberof']['count'])) {
-               unset($res['memberof']['count']);
+               unset($res['memberof']['count']); // Get rid of count field for implode of groups
             }
 
             $users[] = [
@@ -57,17 +62,23 @@ class LDAP
                 'firstName' => $res['givenname'][0] ?? '',
                 'lastName'  => $res['sn'][0] ?? '',
                 'memberOf'  => !empty($res['memberof']) ? implode(',', $res['memberof']) : ''
-            ];
+            ]; // Array for further processing
         };
 
         return $users;
     }
 
-    public function createObject(string $firstName, string $lastName, string $loginName, string $pw)
+    /**
+     *
+     * Create new object in LDAP server
+     *
+     * @return bool
+     */
+    public function createObject(string $firstName, string $lastName, string $loginName, string $pw): bool
     {
         $cn    = $firstName . ' ' . $lastName;
         $dn    = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch';
-        $uniPw = iconv('UTF-8', 'UTF-16LE', '"' . $pw . '"');
+        $uniPw = iconv('UTF-8', 'UTF-16LE', '"' . $pw . '"'); // Only Unicode encoded passwords are excepted
 
         $ldaprecord['cn'] = $cn;
         $ldaprecord['givenName'] = $firstName;
@@ -82,7 +93,13 @@ class LDAP
         return ldap_add($this->con, $dn, $ldaprecord);
     }
 
-    public function objectExists(string $loginName)
+    /**
+     *
+     * Check if object alredy exists
+     *
+     * @return bool
+     */
+    public function objectExists(string $loginName): bool
     {
         $base_dn   = "CN=Users, DC=smirnyag, DC=ch";
         $filter    = '(&(cn=' . $loginName . '))'; // Only people and exclude the user that the webapp uses
@@ -91,7 +108,13 @@ class LDAP
         return $sr;
     }
 
-    public function deleteObject(string $dn)
+    /**
+     *
+     * Delete object
+     *
+     * @return bool
+     */
+    public function deleteObject(string $dn): bool
     {
         return ldap_delete($this->con, $dn);
     }

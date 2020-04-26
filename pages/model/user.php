@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 /**
-* Checks and sets user athentifications
-*
-*
-* PHP version 7.4
-*
-*
-* @package ad-web-app
-* @author Original Author <justin.inw@hotmail.com>
-* @copyright BZTF
-* @license http://creativecommons.org/licenses/by-nc-sa/3.0/
-*/
+ * User get, add, edit, delete and validation functions
+ *
+ *
+ * PHP version 7.4
+ *
+ *
+ * @package ad-web-app
+ * @author Original Author <justin.inw@hotmail.com>
+ * @copyright BZTF
+ * @license http://creativecommons.org/licenses/by-nc-sa/3.0/
+ */
 
 class Model
 {
@@ -25,22 +25,52 @@ class Model
         $this->ldap           = new LDAP();
     }
 
-    public function getUsers()
+    /**
+     *
+     * Gets LDAP users
+     *
+     * @return array
+     */
+    public function getUsers(): array
     {
         return $this->ldap->searchUsers();
     }
 
-    public function deleteUser(string $dn)
+    /**
+     *
+     * Deletes LDAP users
+     *
+     * @param  string $dn the dn of the object
+     * @return bool
+     */
+    public function deleteUser(string $dn):bool
     {
         return $this->ldap->deleteObject($dn);
     }
 
-    public function createUser(string $firstName, string $lastName, string $loginName, string $pw)
+    /**
+     *
+     * Creates LDAP users
+     *
+     * @param  string $firstName firstname of the user
+     * @param  string $lastName lastname of the user
+     * @param  string $loginName the loginname of the user
+     * @param  string $pw the password of the user
+     * @return bool
+     */
+    public function createUser(string $firstName, string $lastName, string $loginName, string $pw): bool
     {
         return $this->ldap->createObject($firstName, $lastName, $loginName, $pw);
     }
 
-    public function checkExist(string $loginName)
+    /**
+     *
+     * Checks if the object already exists
+     *
+     * @param  string $loginName the login name of the user
+     * @return bool
+     */
+    public function checkExist(string $loginName): bool
     {
         if (!$this->ldap->objectExists($loginName)) {
             return false;
@@ -49,16 +79,33 @@ class Model
         return true;
     }
 
-    public function samePw(string $pw, string $pwConfirm)
+    /**
+     *
+     * Checks that user inputted passwords are both the same
+     *
+     * @param  string $pw first entered password
+     * @param  string $pwConfirm second entered password
+     * @return bool
+     */
+    public function samePw(string $pw, string $pwConfirm): bool
     {
-        if ($pw != $pwConfirm) {
+        if ($pw !== $pwConfirm) {
             return false;
         }
 
         return true;
     }
 
-    public function pwComplexity(string $pw)
+    /**
+     *
+     * Checks that password has lowercase, uppercase and
+     * special chars or numbers in it. Also it makes shure that there are
+     * at least 8 characters
+     *
+     * @param  string $pw first entered password
+     * @return bool
+     */
+    public function pwComplexity(string $pw): bool
     {
         $uppercase    = preg_match('@[A-Z]@', $pw);
         $lowercase    = preg_match('@[a-z]@', $pw);

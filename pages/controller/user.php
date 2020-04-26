@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 /**
-* Calls user login and pw reset functions
-*
-*
-* PHP version 7.3
-*
-*
-* @package ad-web-app
-* @author Original Author <justin.inw@hotmail.com>
-* @copyright BZTF
-* @license http://creativecommons.org/licenses/by-nc-sa/3.0/
-*/
+ * Calls user login and pw reset functions
+ *
+ *
+ * PHP version 7.3
+ *
+ *
+ * @package ad-web-app
+ * @author Original Author <justin.inw@hotmail.com>
+ * @copyright BZTF
+ * @license http://creativecommons.org/licenses/by-nc-sa/3.0/
+ */
 
 class Controller
 {
@@ -74,6 +74,12 @@ class Controller
         $this->view->getview('user', 'index', $users);
     }
 
+    /**
+     *
+     * Add users
+     *
+     * @return void
+     */
     protected function add(): void
     {
         if (empty($_POST)) {
@@ -110,11 +116,16 @@ class Controller
         }
 
 
-
+        return;
     }
 
-    // Call delete or edit pages
-    protected function update()
+    /**
+     *
+     * Call delete or edit pages
+     *
+     * @return void
+     */
+    protected function update(): void
     {
         if (!empty($this->edit)) {
             $this->view->getview('user', 'add', $user);
@@ -126,8 +137,13 @@ class Controller
         }
     }
 
-    // Delete user
-    protected function delete()
+    /**
+     *
+     * Delete users
+     *
+     * @return void
+     */
+    protected function delete(): void
     {
         $userDeleted = $this->model->deleteUser($this->dn);
 

@@ -17,16 +17,18 @@ class Controller
     protected View   $view;
     protected Model  $model;
     protected string $action;
-    protected string $email;
-    protected string $pw;
 
     public function __construct($action)
     {
         $this->view         = new View();
         $this->model        = new Model();
         $this->action       = !empty($action) ? $action : 'index'; // if no action given, use index as default
-        $this->email        = $_POST['email'] ?? '';
-        $this->pw           = $_POST['pw'] ?? '';
+
+        // Set class variables to post variables
+        foreach ($_POST as $key => $value) {
+            $this->{$key} = $value ?? '';
+        }
+
         $this->callpage();
     }
 
