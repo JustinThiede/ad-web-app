@@ -11,5 +11,5 @@ define('CONF_DB_CHARSET', 'utf8mb4');
 define('CONF_LDAP_DOMAIN', 'smirnyag.ch');
 define('CONF_LDAP_PW', 'testUser!');
 define('CONF_LDAP_USER', 'ad-web@smirnyag.ch');
-define('CONF_LDAP_HOST', '192.168.1.2'); // IP of webserver is used a port forwarding is setup
-define('CONF_LDAP_PORT', 389);
+define('CONF_LDAP_HOST', 'ldaps://192.168.1.2'); // IP of webserver is used a port forwarding is setup
+define('CONF_LDAP_PORT', 636);

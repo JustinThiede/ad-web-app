@@ -36,11 +36,16 @@ class Model
         $users = $this->db->selectAll('user');
 
         foreach ($users as $user) {
-            if ($email == $user['email']) {
+            $dbPw    = $user['pw'];
+            $dbEmail = $user['email'];
+            $userId  = $user['user_id'];
+
+            if ($email == $dbEmail) {
                 // Verify password with salted hash which consists of pw and last login
-                if (password_verify($pw . $user['last_login'], $user['pw'])) {
-                    $this->updateUser($user['user_id'], $pw);
-                    $_SESSION['USER'] = $user['user_id']; // Set user session
+                if (password_verify($pw, $dbPw)) {
+                    $this->updateUser($userId, $pw);
+                    $_SESSION['USER'] = $userId; // Set user session
+
                     return true;
                 }
             }
@@ -51,7 +56,7 @@ class Model
 
     /**
      *
-     * Update password and last login in DB
+     * Update password DB
      *
      * @param int    $userId ID of the user
      * @param string $pw password of the user
@@ -59,10 +64,9 @@ class Model
      */
     protected function updateUser(int $userId, string $pw): void
     {
-        $now   = time();
-        $pw    = password_hash($pw . $now, PASSWORD_BCRYPT);
-        $query = 'UPDATE `user` SET `pw` = :pw, `last_login` = :now WHERE `user_id` = :userId';
-        $this->db->prepareQuery($query, $pw, $now, $userId);
+        $pw    = password_hash($pw, PASSWORD_BCRYPT);
+        $query = 'UPDATE `user` SET `pw` = :pw WHERE `user_id` = :userId';
+        $this->db->prepareQuery($query, $pw, $userId);
     }
 
     /**

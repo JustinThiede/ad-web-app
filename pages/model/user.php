@@ -72,11 +72,7 @@ class Model
      */
     public function checkExist(string $loginName): bool
     {
-        if (!$this->ldap->objectExists($loginName)) {
-            return false;
-        }
-
-        return true;
+        return $this->ldap->objectExists($loginName);
     }
 
     /**

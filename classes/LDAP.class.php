@@ -80,15 +80,17 @@ class LDAP
         $dn    = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch';
         $uniPw = iconv('UTF-8', 'UTF-16LE', '"' . $pw . '"'); // Only Unicode encoded passwords are excepted
 
-        $ldaprecord['cn'] = $cn;
-        $ldaprecord['givenName'] = $firstName;
-        $ldaprecord['sn'] = $lastName;
-        $ldaprecord['userprincipalname'] = $loginName . '@' . CONF_LDAP_DOMAIN;
-        //$ldaprecord['unicodepwd'] = $uniPw;
-        $ldaprecord['objectclass'][0] = "top";
-        $ldaprecord['objectclass'][1] = "person";
-        $ldaprecord['objectclass'][2] = "organizationalPerson";
-        $ldaprecord['objectclass'][3] = "user";
+        $ldaprecord['cn']                 = $cn;
+        $ldaprecord['givenName']          = $firstName;
+        $ldaprecord['sn']                 = $lastName;
+        $ldaprecord['userprincipalname']  = $loginName . '@' . CONF_LDAP_DOMAIN;
+        $ldaprecord['sAMAccountName']     = $loginName;
+        $ldaprecord['unicodepwd']         = $uniPw;
+        $ldaprecord['objectclass'][0]     = 'top';
+        $ldaprecord['objectclass'][1]     = 'person';
+        $ldaprecord['objectclass'][2]     = 'organizationalPerson';
+        $ldaprecord['objectclass'][3]     = 'user';
+        $ldaprecord["UserAccountControl"] = '512';
 
         return ldap_add($this->con, $dn, $ldaprecord);
     }
@@ -102,10 +104,15 @@ class LDAP
     public function objectExists(string $loginName): bool
     {
         $base_dn   = "CN=Users, DC=smirnyag, DC=ch";
-        $filter    = '(&(cn=' . $loginName . '))'; // Only people and exclude the user that the webapp uses
+        $filter    = '(sAMAccountName=' . $loginName . ')';
         $sr        = ldap_search($this->con, $base_dn, $filter);
+        $searchRes = ldap_get_entries($this->con, $sr);
 
-        return $sr;
+        if ($searchRes['count'] == 0) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
