@@ -128,6 +128,7 @@ class Controller
     protected function update(): void
     {
         if (!empty($this->edit)) {
+            $user = $this->model->getUser($this->cn);
             $this->view->getview('user', 'add', $user);
         } elseif (!empty($this->delete)) {
             $this->view->getview('user', 'delete', [

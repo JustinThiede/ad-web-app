@@ -92,7 +92,16 @@ class LDAP
         $ldaprecord['objectclass'][3]     = 'user';
         $ldaprecord["UserAccountControl"] = '512';
 
-        return ldap_add($this->con, $dn, $ldaprecord);
+        return ldap_add($this->con, $dn, $ldaprecord;
+    }
+
+
+    public function addMember($cn, $group): void
+    {
+        $groupName           = 'CN=' . $group . ', CN=Users, DC=smirnyag, DC=ch';
+        $groupInfo['member'] = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch'; // User's DN is added to group's 'member' array
+
+        ldap_mod_add($this->con, $groupName, $groupInfo);
     }
 
     /**
