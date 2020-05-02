@@ -27,9 +27,22 @@ $(function(){
 
     $('.back-button').on('click', goBack);
 
+    $('[name="changePw"]').on('click', togglePw);
+
     // Go back in history state
     function goBack() {
-        console.log("test");
         window.history.back();
     }
+
+    // Toggles display and required of password fields based on checkbox
+    function togglePw() {
+        $('.user-pw').toggle();
+
+        if ($(this).is(':checked')) {
+            $('[type=password]').prop('required', true);
+        } else {
+            $('[type=password]').prop('required', false);
+        }
+    }
+
 });

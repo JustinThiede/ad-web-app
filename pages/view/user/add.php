@@ -3,8 +3,8 @@
             <div class="content-wrapper">
                 <div class="content">
                     <div class="button-field d-flex">
-                        <button class="back-button alt-ex-buttons mb-4 mr-2"><i class="fas fa-reply mr-2 "></i>Zurück</button>
-                        <?php if ((isset($data) && gettype($data) == 'array') || (empty($data))): ?>
+                        <?php if ((isset($data) && gettype($data) == 'array') || ($data != 'Der Benutzer wurde erfolgreich hinzugefügt.')): ?>
+                            <button class="back-button alt-ex-buttons mb-4 mr-2"><i class="fas fa-reply mr-2 "></i>Zurück</button>
                             <button class="ex-buttons mr-2" type="submit" form="usereditor" value="Submit">Speichern</button>
                         <?php endif; ?>
                         <a class="ex-buttons mr-2" href="/user/index">Benutzer-Übersicht</a>
@@ -14,6 +14,7 @@
                     <?php if (isset($data) && gettype($data) != 'array'): echo $data; else:?>
                         <form action="/user/add" method="POST" enctype="multipart/form-data" id="usereditor">
                             <input type="hidden" name="edit" value="<?php if (isset($data['dn'])): echo $data['dn']; endif; ?>">
+                            <input type="hidden" name="memberOf" value="<?php if (isset($data['memberOf'])): echo $data['memberOf']; endif; ?>">
                             Vorname:<br>
                             <input class="form-control form-inputs" type="text" name="firstName" value="<?php if (isset($data['firstName'])): echo $data['firstName']; endif; ?>" required>
                             <br>
@@ -24,12 +25,21 @@
                             <input class="form-control inline form-inputs" type="text" name="loginName" value="<?php if (isset($data['loginName'])): echo $data['loginName']; endif; ?>" required>
                             <input class="form-control inline form-inputs" type="text" name="domain" value="@smirnyag.ch" disabled>
                             <br><br>
-                            Passwort:<br>
-                            <input class="form-control form-inputs" type="password" name="pw" value="<?php if (isset($data['pw'])): echo $data['pw']; endif; ?>" required>
-                            <br>
-                            Passwort bestätigen:<br>
-                            <input class="form-control form-inputs" type="password" name="pwConfirm" value="" required>
-                            <br>
+                            <?php if (isset($data['dn'])): ?>
+                                Passwort ändern:<br>
+                                <input type="checkbox" name="changePw" value="true">
+                                <br>
+                            <?php endif; ?>
+
+                            <div class="user-pw" <?php if (isset($data['dn'])): echo 'style="display:none"'; endif;?>>
+                                Passwort:<br>
+                                <input class="form-control form-inputs" type="password" name="pw" <?php if (!isset($data['dn'])): echo 'required'; endif; ?>>
+                                <br>
+                                Passwort bestätigen:<br>
+                                <input class="form-control form-inputs" type="password" name="pwConfirm" value="" <?php if (!isset($data['dn'])): echo 'required'; endif; ?>>
+                                <br>
+                            </div>
+
                             <button class="ex-buttons mt-2" type="submit" value="Submit">Speichern</button>
                         </form>
                     <?php endif; ?>

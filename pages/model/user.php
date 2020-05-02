@@ -38,6 +38,17 @@ class Model
 
     /**
      *
+     * Gets specific LDAP user
+     *
+     * @return array
+     */
+    public function getUser($cn): array
+    {
+        return $this->ldap->searchUser($cn);
+    }
+
+    /**
+     *
      * Deletes LDAP users
      *
      * @param  string $dn the dn of the object
@@ -50,7 +61,7 @@ class Model
 
     /**
      *
-     * Creates LDAP users
+     * Creates LDAP user
      *
      * @param  string $firstName firstname of the user
      * @param  string $lastName lastname of the user
@@ -61,6 +72,21 @@ class Model
     public function createUser(string $firstName, string $lastName, string $loginName, string $pw): bool
     {
         return $this->ldap->createObject($firstName, $lastName, $loginName, $pw);
+    }
+
+    /**
+     *
+     * Updates LDAP user
+     *
+     * @param  string $firstName firstname of the user
+     * @param  string $lastName lastname of the user
+     * @param  string $loginName the loginname of the user
+     * @param  string $pw the password of the user
+     * @return bool
+     */
+    public function updateUser(string $dn, string $memberOf, string $firstName, string $lastName, string $loginName, string $pw): bool
+    {
+        return $this->ldap->updateObject($dn, $memberOf, $firstName, $lastName, $loginName, $pw);
     }
 
     /**

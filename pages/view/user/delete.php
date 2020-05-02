@@ -2,6 +2,12 @@
 <div class="col-xl-10 col-12">
     <div class="content-wrapper">
         <div class="content">
+            <div class="button-field d-flex">
+                <?php if (!isset($data['success'])):?>
+                    <button class="back-button alt-ex-buttons mb-4 mr-2"><i class="fas fa-reply mr-2 "></i>Zurück</button>
+                <?php endif; ?>
+                <a class="ex-buttons mr-2" href="/user/index">Benutzer-Übersicht</a>
+            </div>
             <h1>Benutzer löschen</h1>
             <?php if (isset($data['dn'])): ?>
                 <form action="/user/delete" method="POST">

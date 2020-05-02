@@ -19,6 +19,7 @@ class LDAP
 
     function __construct(){
         $this->con  = ldap_connect(CONF_LDAP_HOST, CONF_LDAP_PORT);
+        ldap_set_option($this->con, LDAP_OPT_PROTOCOL_VERSION, 3); // User version 3 of LDAP
         $this->bind = ldap_bind($this->con, CONF_LDAP_USER, CONF_LDAP_PW);
 
         if (!$this->con) {
@@ -38,9 +39,9 @@ class LDAP
      */
     public function searchUsers(): array
     {
-        $base_dn   = "CN=Users, DC=smirnyag, DC=ch";
-        $filter    = "(&(objectClass=person)(!(cn=ad-web)))"; // Only people and exclude the user that the webapp uses
-        $attr      = array("DN","OU","CN","DC","memberof", "userprincipalname", "givenname", "sn");
+        $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
+        $filter    = '(&(objectClass=person)(!(cn=ad-web)))'; // Only people and exclude the user that the webapp uses
+        $attr      = array('DN','OU','CN','DC','memberof', 'userprincipalname', 'givenname', 'sn');
         $sr        = ldap_search($this->con, $base_dn, $filter, $attr);
         $searchRes = ldap_get_entries($this->con, $sr);
         $users     = [];
@@ -68,6 +69,25 @@ class LDAP
         return $users;
     }
 
+    public function searchUser($cn): array
+    {
+        $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
+        $filter    = '(CN=' . $cn . ')'; // Only people and exclude the user that the webapp uses
+        $attr      = array('DN', 'memberof', 'givenname', 'sn', 'samaccountname');
+        $sr        = ldap_search($this->con, $base_dn, $filter, $attr);
+        $searchRes = ldap_get_entries($this->con, $sr)[0]; // Only one result is returned
+
+        $user      = [
+            'firstName' => $searchRes['givenname'][0],
+            'lastName'  => $searchRes['sn'][0],
+            'loginName' => $searchRes['samaccountname'][0],
+            'dn'        => $searchRes['dn'],
+            'memberOf'  => $searchRes['memberof'][0]
+        ];
+
+        return $user;
+    }
+
     /**
      *
      * Create new object in LDAP server
@@ -76,10 +96,9 @@ class LDAP
      */
     public function createObject(string $firstName, string $lastName, string $loginName, string $pw): bool
     {
-        $cn    = $firstName . ' ' . $lastName;
-        $dn    = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch';
-        $uniPw = iconv('UTF-8', 'UTF-16LE', '"' . $pw . '"'); // Only Unicode encoded passwords are excepted
-
+        $cn                               = $firstName . ' ' . $lastName;
+        $dn                               = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch';
+        $uniPw                            = iconv('UTF-8', 'UTF-16LE', '"' . $pw . '"'); // Only Unicode encoded passwords are excepted
         $ldaprecord['cn']                 = $cn;
         $ldaprecord['givenName']          = $firstName;
         $ldaprecord['sn']                 = $lastName;
@@ -90,11 +109,42 @@ class LDAP
         $ldaprecord['objectclass'][1]     = 'person';
         $ldaprecord['objectclass'][2]     = 'organizationalPerson';
         $ldaprecord['objectclass'][3]     = 'user';
-        $ldaprecord["UserAccountControl"] = '512';
+        $ldaprecord['UserAccountControl'] = '512';
 
-        return ldap_add($this->con, $dn, $ldaprecord;
+        return ldap_add($this->con, $dn, $ldaprecord);
     }
 
+    /**
+     *
+     * Create new object in LDAP server
+     *
+     * @return bool
+     */
+    public function updateObject(string $dn, string $memberOf, string $firstName, string $lastName, string $loginName, string $pw): bool
+    {
+        $newRdn                          = 'cn=' . $firstName . ' ' . $lastName; // Set new cn for user
+        $ldaprecord['givenName']         = $firstName;
+        $ldaprecord['sn']                = $lastName;
+        $ldaprecord['userprincipalname'] = $loginName . '@' . CONF_LDAP_DOMAIN;
+        $ldaprecord['sAMAccountName']    = $loginName;
+
+        // User change doesnt require a new password
+        if (!empty($pw)) {
+            $uniPw                    = iconv('UTF-8', 'UTF-16LE', '"' . $pw . '"'); // Only Unicode encoded passwords are excepted
+            $ldaprecord['unicodepwd'] = $uniPw;
+        }
+
+        if (!ldap_mod_replace($this->con, $dn, $ldaprecord)) {
+            return false;
+        }
+
+        // Change CN needs to be after replace otherwise DN is wrong
+        if (!ldap_rename($this->con, $dn, $newRdn, 'CN=Users, DC=smirnyag, DC=ch', TRUE)) {
+            return false;
+        }
+
+        return true;
+    }
 
     public function addMember($cn, $group): void
     {
@@ -112,7 +162,7 @@ class LDAP
      */
     public function objectExists(string $loginName): bool
     {
-        $base_dn   = "CN=Users, DC=smirnyag, DC=ch";
+        $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
         $filter    = '(sAMAccountName=' . $loginName . ')';
         $sr        = ldap_search($this->con, $base_dn, $filter);
         $searchRes = ldap_get_entries($this->con, $sr);

@@ -112,7 +112,30 @@ class Controller
                 $this->view->getview('user', 'add', 'Der Benutzer wurde erfolgreich hinzugefügt.');
             }
         } else {
+            if (isset($this->changePw)) {
+                $pwSame    = $this->model->samePw($this->pw, $this->pwConfirm);
+                $pwComplex = $this->model->pwComplexity($this->pw);
 
+                if (!$pwSame) {
+                    $this->view->getview('user', 'add', 'Die Passwörter müssen gleich sein.');
+                    return;
+                }
+
+                if (!$pwComplex) {
+                    $this->view->getview('user', 'add', 'Das Passwort muss mindestens 8 Zeichen, Grossbuchstaben, Kleinbuchstaben und entweder ein Spezialzeichen oder eine Zahl enthalten.');
+                    return;
+                }
+            } else {
+                $this->pw = '';
+            }
+
+            $updatedUser = $this->model->updateUser($this->edit, $this->memberOf, $this->firstName, $this->lastName, $this->loginName, $this->pw);
+
+            if (!$updatedUser) {
+                $this->view->getview('user', 'add', 'Der Benutzer konnte nicht geändert werden.');
+            } else {
+                $this->view->getview('user', 'add', 'Der Benutzer wurde erfolgreich geändert.');
+            }
         }
 
 
