@@ -49,12 +49,12 @@ class Model
 
     /**
      *
-     * Deletes LDAP users
+     * Deletes LDAP groups
      *
      * @param  string $dn the dn of the object
      * @return bool
      */
-    public function deleteUser(string $dn):bool
+    public function deleteGroup(string $dn):bool
     {
         return $this->ldap->deleteObject($dn);
     }

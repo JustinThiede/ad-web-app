@@ -151,10 +151,10 @@ class Controller
     protected function update(): void
     {
         if (!empty($this->edit)) {
-            $user = $this->model->getUser($this->cn);
-            $this->view->getview('user', 'add', $user);
+            $user = $this->model->getGroup($this->cn);
+            $this->view->getview('group', 'add', $user);
         } elseif (!empty($this->delete)) {
-            $this->view->getview('user', 'delete', [
+            $this->view->getview('group', 'delete', [
                 'dn' => $this->dn,
                 'cn' => $this->cn
             ]);
@@ -163,21 +163,21 @@ class Controller
 
     /**
      *
-     * Delete users
+     * Delete groups
      *
      * @return void
      */
     protected function delete(): void
     {
-        $userDeleted = $this->model->deleteUser($this->dn);
+        $groupDeleted = $this->model->deleteGroup($this->dn);
 
-        if ($userDeleted) {
-            $this->view->getview('user', 'delete', [
-                'success' => 'Benutzer gelöscht!'
+        if ($groupDeleted) {
+            $this->view->getview('group', 'delete', [
+                'success' => 'Gruppe gelöscht!'
             ]);
         } else {
-            $this->view->getview('user', 'delete', [
-                'error' => 'Der Benutzer konnte nicht gelöscht werden! Wenden Sie sich an den Administrator.'
+            $this->view->getview('group', 'delete', [
+                'error' => 'Die Gruppe konnte nicht gelöscht werden! Wenden Sie sich an den Administrator.'
             ]);
         }
     }
