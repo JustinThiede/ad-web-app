@@ -62,7 +62,7 @@ class LDAP
                 'loginName' => $res['userprincipalname'][0] ?? '',
                 'firstName' => $res['givenname'][0] ?? '',
                 'lastName'  => $res['sn'][0] ?? '',
-                'memberOf'  => !empty($res['memberof']) ? implode(',', $res['memberof']) : ''
+                'memberOf'  => !empty($res['memberof']) ? implode(';<br>', $res['memberof']) . ';' : ''
             ]; // Array for further processing
         };
 
@@ -93,6 +93,47 @@ class LDAP
         ];
 
         return $user;
+    }
+
+    /**
+     *
+     * Searches for groups in the LDAP server
+     *
+     * @return array $groups All found groups
+     */
+    public function searchGroups(): array
+    {
+        $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
+        $filter    = '(objectClass=group)'; // Only people and exclude the user that the webapp uses
+        $attr      = array('DN','CN','memberof', 'member');
+        $sr        = ldap_search($this->con, $base_dn, $filter, $attr);
+        $searchRes = ldap_get_entries($this->con, $sr);
+        $users     = [];
+
+
+        foreach ($searchRes as $key => $res) {
+            // Fields that are overall info about the domain dont have int keys
+            if (gettype($key) != 'integer') {
+                continue;
+            }
+
+            if (isset($res['memberof']['count'])) {
+               unset($res['memberof']['count']); // Get rid of count field for implode of groups
+            }
+
+            if (isset($res['member']['count'])) {
+               unset($res['member']['count']); // Get rid of count field for implode of members
+            }
+
+            $groups[] = [
+                'cn'       => $res['cn'][0] ?? '',
+                'dn'       => $res['dn'] ?? '',
+                'memberOf' => !empty($res['memberof']) ? implode(';<br>', $res['memberof']) . ';' : '',
+                'member'   => !empty($res['member']) ? implode(';<br>', $res['member']) . ';' : ''
+            ]; // Array for further processing
+        };
+
+        return $groups;
     }
 
     /**
