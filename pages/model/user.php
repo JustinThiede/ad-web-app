@@ -78,6 +78,8 @@ class Model
      *
      * Updates LDAP user
      *
+     * @param  string $dn The DN of the user
+     * @param  string $memberOf The groups the user is a member of
      * @param  string $firstName firstname of the user
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user

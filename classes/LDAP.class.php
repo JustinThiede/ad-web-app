@@ -35,7 +35,7 @@ class LDAP
      *
      * Searches for users in the LDAP server
      *
-     * @return array
+     * @return array $users All found users
      */
     public function searchUsers(): array
     {
@@ -69,7 +69,14 @@ class LDAP
         return $users;
     }
 
-    public function searchUser($cn): array
+    /**
+     *
+     * Searches for specific user in the LDAP server
+     *
+     * @param string $cn The users CN
+     * @return array $user Found user
+     */
+    public function searchUser(string $cn): array
     {
         $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
         $filter    = '(CN=' . $cn . ')'; // Only people and exclude the user that the webapp uses
@@ -92,6 +99,10 @@ class LDAP
      *
      * Create new object in LDAP server
      *
+     * @param  string $firstName firstname of the user
+     * @param  string $lastName lastname of the user
+     * @param  string $loginName the loginname of the user
+     * @param  string $pw the password of the user
      * @return bool
      */
     public function createObject(string $firstName, string $lastName, string $loginName, string $pw): bool
@@ -118,6 +129,12 @@ class LDAP
      *
      * Create new object in LDAP server
      *
+     * @param  string $dn The DN of the user
+     * @param  string $memberOf The groups the user is a member of
+     * @param  string $firstName firstname of the user
+     * @param  string $lastName lastname of the user
+     * @param  string $loginName the loginname of the user
+     * @param  string $pw the password of the user
      * @return bool
      */
     public function updateObject(string $dn, string $memberOf, string $firstName, string $lastName, string $loginName, string $pw): bool
@@ -146,7 +163,15 @@ class LDAP
         return true;
     }
 
-    public function addMember($cn, $group): void
+    /**
+     *
+     * Create new object in LDAP server
+     *
+     * @param  string $cn The CN of the object beeing added to group
+     * @param  string $group The group thats beeing added to
+     * @return void
+     */
+    public function addMember(strign $cn, string $group): void
     {
         $groupName           = 'CN=' . $group . ', CN=Users, DC=smirnyag, DC=ch';
         $groupInfo['member'] = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch'; // User's DN is added to group's 'member' array
@@ -158,6 +183,7 @@ class LDAP
      *
      * Check if object alredy exists
      *
+     * @param  string $loginName The loginname to search for
      * @return bool
      */
     public function objectExists(string $loginName): bool
@@ -178,6 +204,7 @@ class LDAP
      *
      * Delete object
      *
+     * @param  string $dn The object to delete
      * @return bool
      */
     public function deleteObject(string $dn): bool
