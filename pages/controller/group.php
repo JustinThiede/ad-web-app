@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Calls user login and pw reset functions
+ * Calls group add, edit, select, delete functions
  *
  *
  * PHP version 7.3
@@ -83,58 +83,29 @@ class Controller
     protected function add(): void
     {
         if (empty($_POST)) {
-            $this->view->getview('user', 'add');
+            $this->view->getview('group', 'add');
         } else if (empty($this->edit)) {
-            $pwSame    = $this->model->samePw($this->pw, $this->pwConfirm);
-            $pwComplex = $this->model->pwComplexity($this->pw);
-            $exists    = $this->model->checkExist($this->loginName);
-
-            if (!$pwSame) {
-                $this->view->getview('user', 'add', 'Die Passwörter müssen gleich sein.');
-                return;
-            }
-
-            if (!$pwComplex) {
-                $this->view->getview('user', 'add', 'Das Passwort muss mindestens 8 Zeichen, Grossbuchstaben, Kleinbuchstaben und entweder ein Spezialzeichen oder eine Zahl enthalten.');
-                return;
-            }
+            $exists    = $this->model->checkExist($this->cn);
 
             if ($exists) {
-                $this->view->getview('user', 'add', 'Der Benutzer existiert bereits.');
+                $this->view->getview('group', 'add', 'Die Gruppe existiert bereits.');
                 return;
             }
 
-            $created = $this->model->createUser($this->firstName, $this->lastName, $this->loginName, $this->pw);
+            $created = $this->model->createGroup($this->cn, $this->groupType);
 
             if (!$created) {
-                $this->view->getview('user', 'add', 'Der Benutzer konnte nicht hinzugefügt werden.');
+                $this->view->getview('group', 'add', 'Die Gruppe konnte nicht hinzugefügt werden.');
             } else {
-                $this->view->getview('user', 'add', 'Der Benutzer wurde erfolgreich hinzugefügt.');
+                $this->view->getview('group', 'add', 'Die Gruppe wurde erfolgreich hinzugefügt.');
             }
         } else {
-            if (isset($this->changePw)) {
-                $pwSame    = $this->model->samePw($this->pw, $this->pwConfirm);
-                $pwComplex = $this->model->pwComplexity($this->pw);
-
-                if (!$pwSame) {
-                    $this->view->getview('user', 'add', 'Die Passwörter müssen gleich sein.');
-                    return;
-                }
-
-                if (!$pwComplex) {
-                    $this->view->getview('user', 'add', 'Das Passwort muss mindestens 8 Zeichen, Grossbuchstaben, Kleinbuchstaben und entweder ein Spezialzeichen oder eine Zahl enthalten.');
-                    return;
-                }
-            } else {
-                $this->pw = '';
-            }
-
-            $updatedUser = $this->model->updateUser($this->edit, $this->memberOf, $this->firstName, $this->lastName, $this->loginName, $this->pw);
+            $updateGroup = $this->model->updateGroup($this->edit, $this->memberOf, $this->firstName, $this->lastName, $this->loginName, $this->pw);
 
             if (!$updatedUser) {
-                $this->view->getview('user', 'add', 'Der Benutzer konnte nicht geändert werden.');
+                $this->view->getview('group', 'add', 'Der Benutzer konnte nicht geändert werden.');
             } else {
-                $this->view->getview('user', 'add', 'Der Benutzer wurde erfolgreich geändert.');
+                $this->view->getview('group', 'add', 'Der Benutzer wurde erfolgreich geändert.');
             }
         }
 

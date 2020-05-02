@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Calls user login and pw reset functions
+ * Calls user add, edit, select and delete functions
  *
  *
  * PHP version 7.3
@@ -87,7 +87,7 @@ class Controller
         } else if (empty($this->edit)) {
             $pwSame    = $this->model->samePw($this->pw, $this->pwConfirm);
             $pwComplex = $this->model->pwComplexity($this->pw);
-            $exists    = $this->model->checkExist($this->loginName);
+            $exists    = $this->model->checkExist($this->firstName . ' ' . $this->lastName);
 
             if (!$pwSame) {
                 $this->view->getview('user', 'add', 'Die Passwörter müssen gleich sein.');

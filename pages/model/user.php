@@ -95,12 +95,12 @@ class Model
      *
      * Checks if the object already exists
      *
-     * @param  string $loginName the login name of the user
+     * @param  string $cn The CN of the user
      * @return bool
      */
-    public function checkExist(string $loginName): bool
+    public function checkExist(string $cn): bool
     {
-        return $this->ldap->objectExists($loginName);
+        return $this->ldap->objectExists($cn);
     }
 
     /**

@@ -106,10 +106,9 @@ class LDAP
         $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
         $filter    = '(objectClass=group)'; // Only people and exclude the user that the webapp uses
         $attr      = array('DN','CN','memberof', 'member');
-        $sr        = ldap_search($this->con, $base_dn, $filter, $attr);
+        $sr        = ldap_search($this->con, $base_dn, $filter);
         $searchRes = ldap_get_entries($this->con, $sr);
         $users     = [];
-
 
         foreach ($searchRes as $key => $res) {
             // Fields that are overall info about the domain dont have int keys
@@ -165,6 +164,35 @@ class LDAP
 
         return ldap_add($this->con, $dn, $ldaprecord);
     }
+
+    /**
+     *
+     * Create new group in LDAP server
+     *
+     * @param  string $cn CN of the group
+     * @param  string $groupType The type of the group
+     * @return bool
+     */
+    public function createGroup(string $cn, string $groupType): bool
+    {
+        $dn                           = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch';
+        $ldaprecord['cn']             = $cn;
+        $ldaprecord['objectClass'][0] = 'top';
+        $ldaprecord['objectClass'][1] = 'group';
+        $ldaprecord["sAMAccountName"] = $cn;
+
+        /*
+         * For unknowen reasons only distribution group can be defined
+         * if left empty security group works
+         * if secuirty group is defined an error is returned
+         */
+        if ($groupType == 2) {
+            $ldaprecord['groupType'] = $groupType;
+        }
+
+        return ldap_add($this->con, $dn, $ldaprecord);
+    }
+
 
     /**
      *
@@ -227,10 +255,10 @@ class LDAP
      * @param  string $loginName The loginname to search for
      * @return bool
      */
-    public function objectExists(string $loginName): bool
+    public function objectExists(string $cn): bool
     {
         $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
-        $filter    = '(sAMAccountName=' . $loginName . ')';
+        $filter    = '(CN=' . $cn . ')';
         $sr        = ldap_search($this->con, $base_dn, $filter);
         $searchRes = ldap_get_entries($this->con, $sr);
 

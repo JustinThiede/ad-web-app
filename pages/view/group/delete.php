@@ -6,7 +6,7 @@
                 <?php if (!isset($data['success'])):?>
                     <button class="back-button alt-ex-buttons mb-4 mr-2"><i class="fas fa-reply mr-2 "></i>Zurück</button>
                 <?php endif; ?>
-                <a class="ex-buttons mr-2" href="/user/index">Gruppen-Übersicht</a>
+                <a class="ex-buttons mr-2" href="/group/index">Gruppen-Übersicht</a>
             </div>
             <h1>Gruppe löschen</h1>
             <?php if (isset($data['dn'])): ?>
