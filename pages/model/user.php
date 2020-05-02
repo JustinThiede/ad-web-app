@@ -79,16 +79,15 @@ class Model
      * Updates LDAP user
      *
      * @param  string $dn The DN of the user
-     * @param  string $memberOf The groups the user is a member of
      * @param  string $firstName firstname of the user
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user
      * @param  string $pw the password of the user
      * @return bool
      */
-    public function updateUser(string $dn, string $memberOf, string $firstName, string $lastName, string $loginName, string $pw): bool
+    public function updateUser(string $dn, string $firstName, string $lastName, string $loginName, string $pw): bool
     {
-        return $this->ldap->updateObject($dn, $memberOf, $firstName, $lastName, $loginName, $pw);
+        return $this->ldap->updateObject($dn, $firstName, $lastName, $loginName, $pw);
     }
 
     /**

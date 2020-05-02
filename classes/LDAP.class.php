@@ -79,7 +79,7 @@ class LDAP
     public function searchUser(string $cn): array
     {
         $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
-        $filter    = '(CN=' . $cn . ')'; // Only people and exclude the user that the webapp uses
+        $filter    = '(CN=' . $cn . ')';
         $attr      = array('DN', 'memberof', 'givenname', 'sn', 'samaccountname');
         $sr        = ldap_search($this->con, $base_dn, $filter, $attr);
         $searchRes = ldap_get_entries($this->con, $sr)[0]; // Only one result is returned
@@ -89,7 +89,7 @@ class LDAP
             'lastName'  => $searchRes['sn'][0],
             'loginName' => $searchRes['samaccountname'][0],
             'dn'        => $searchRes['dn'],
-            'memberOf'  => $searchRes['memberof'][0]
+            'memberOf'  => $searchRes['memberof'][0] ?? ''
         ];
 
         return $user;
@@ -133,6 +133,30 @@ class LDAP
         };
 
         return $groups;
+    }
+
+    /**
+     *
+     * Searches for specific user in the LDAP server
+     *
+     * @param string $cn The users CN
+     * @return array $user Found user
+     */
+    public function searchGroup(string $cn): array
+    {
+        $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
+        $filter    = '(CN=' . $cn . ')';
+        $attr      = array('groupType');
+        $sr        = ldap_search($this->con, $base_dn, $filter, $attr);
+        $searchRes = ldap_get_entries($this->con, $sr)[0]; // Only one result is returned
+
+        $group     = [
+            'cn'        => $cn,
+            'dn'        => $searchRes['dn'],
+            'groupType' => $searchRes['grouptype'][0] == 2 ? 2 : 1
+        ];
+
+        return $group;
     }
 
     /**
@@ -199,14 +223,13 @@ class LDAP
      * Create new object in LDAP server
      *
      * @param  string $dn The DN of the user
-     * @param  string $memberOf The groups the user is a member of
      * @param  string $firstName firstname of the user
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user
      * @param  string $pw the password of the user
      * @return bool
      */
-    public function updateObject(string $dn, string $memberOf, string $firstName, string $lastName, string $loginName, string $pw): bool
+    public function updateObject(string $dn, string $firstName, string $lastName, string $loginName, string $pw): bool
     {
         $newRdn                          = 'cn=' . $firstName . ' ' . $lastName; // Set new cn for user
         $ldaprecord['givenName']         = $firstName;
@@ -218,6 +241,36 @@ class LDAP
         if (!empty($pw)) {
             $uniPw                    = iconv('UTF-8', 'UTF-16LE', '"' . $pw . '"'); // Only Unicode encoded passwords are excepted
             $ldaprecord['unicodepwd'] = $uniPw;
+        }
+
+        if (!ldap_mod_replace($this->con, $dn, $ldaprecord)) {
+            return false;
+        }
+
+        // Change CN needs to be after replace otherwise DN is wrong
+        if (!ldap_rename($this->con, $dn, $newRdn, 'CN=Users, DC=smirnyag, DC=ch', TRUE)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     * Create new group in LDAP server
+     *
+     * @param  string $dn The DN of the user
+     * @param  string $cn The cn of the user
+     * @param  string $groupType The type of the user
+     * @return bool
+     */
+    public function updateGroup(string $dn, string $cn, string $groupType): bool
+    {
+        $newRdn                          = 'CN=' . $cn; // Set new cn for user
+        $ldaprecord['sAMAccountName']    = $cn;
+
+        if ($groupType == 2) {
+            $ldaprecord['groupType'] = $groupType;
         }
 
         if (!ldap_mod_replace($this->con, $dn, $ldaprecord)) {

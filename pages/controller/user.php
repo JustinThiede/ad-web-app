@@ -129,7 +129,7 @@ class Controller
                 $this->pw = '';
             }
 
-            $updatedUser = $this->model->updateUser($this->edit, $this->memberOf, $this->firstName, $this->lastName, $this->loginName, $this->pw);
+            $updatedUser = $this->model->updateUser($this->edit, $this->firstName, $this->lastName, $this->loginName, $this->pw);
 
             if (!$updatedUser) {
                 $this->view->getview('user', 'add', 'Der Benutzer konnte nicht geändert werden.');

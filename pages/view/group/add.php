@@ -18,9 +18,9 @@
                             <input class="form-control form-inputs" type="text" name="cn" value="<?php if (isset($data['cn'])): echo $data['cn']; endif; ?>" required>
                             <br>
                             Gruppenart:<br>
-                            <input type="radio" name="groupType" value="1" required>
+                            <input type="radio" name="groupType" value="1" required <?php if (isset($data['groupType']) && $data['groupType'] == 1): echo 'checked'; endif; ?>>
                             <label for="1">Security</label><br>
-                            <input type="radio" name="groupType" value="2" required>
+                            <input type="radio" name="groupType" value="2" required <?php if (isset($data['groupType']) && $data['groupType'] == 2): echo 'checked'; endif; ?>>
                             <label for="2">Distribution</label><br>
                             <br>
                             <button class="ex-buttons mt-2" type="submit" value="Submit">Speichern</button>

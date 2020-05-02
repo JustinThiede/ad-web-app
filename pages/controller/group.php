@@ -76,7 +76,7 @@ class Controller
 
     /**
      *
-     * Add users
+     * Add group
      *
      * @return void
      */
@@ -100,12 +100,12 @@ class Controller
                 $this->view->getview('group', 'add', 'Die Gruppe wurde erfolgreich hinzugefügt.');
             }
         } else {
-            $updateGroup = $this->model->updateGroup($this->edit, $this->memberOf, $this->firstName, $this->lastName, $this->loginName, $this->pw);
+            $updateGroup = $this->model->updateGroup($this->edit, $this->cn, $this->groupType);
 
-            if (!$updatedUser) {
-                $this->view->getview('group', 'add', 'Der Benutzer konnte nicht geändert werden.');
+            if (!$updateGroup) {
+                $this->view->getview('group', 'add', 'Die Gruppe konnte nicht geändert werden.');
             } else {
-                $this->view->getview('group', 'add', 'Der Benutzer wurde erfolgreich geändert.');
+                $this->view->getview('group', 'add', 'Die Gruppe wurde erfolgreich geändert.');
             }
         }
 
@@ -122,8 +122,8 @@ class Controller
     protected function update(): void
     {
         if (!empty($this->edit)) {
-            $user = $this->model->getGroup($this->cn);
-            $this->view->getview('group', 'add', $user);
+            $group = $this->model->getGroup($this->cn);
+            $this->view->getview('group', 'add', $group);
         } elseif (!empty($this->delete)) {
             $this->view->getview('group', 'delete', [
                 'dn' => $this->dn,
