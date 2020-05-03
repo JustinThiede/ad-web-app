@@ -3,7 +3,7 @@
  * Calls user add, edit, select and delete functions
  *
  *
- * PHP version 7.3
+ * PHP version 7.4
  *
  *
  * @package ad-web-app
@@ -76,7 +76,7 @@ class Controller
 
     /**
      *
-     * Add users
+     * Add or edit users
      *
      * @return void
      */

@@ -3,7 +3,7 @@
  * Calls group add, edit, select, delete functions
  *
  *
- * PHP version 7.3
+ * PHP version 7.4
  *
  *
  * @package ad-web-app
@@ -76,7 +76,7 @@ class Controller
 
     /**
      *
-     * Add group
+     * Add or edit group
      *
      * @return void
      */

@@ -40,13 +40,6 @@ class SessionManager
             session_regenerate_id(true);
             $_SESSION['LAST_ID_CHANGE'] = time();
         }
-
-        // Kill session after 1 hour
-        if (!isset($_SESSION['CREATED'])) {
-            $_SESSION['CREATED'] = time();
-        } else if (time() - $_SESSION['CREATED'] >= 3600) {
-            $this->killSessions();
-        }
     }
 
     public function killSessions()

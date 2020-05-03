@@ -41,7 +41,7 @@ class Model
             $userId  = $user['user_id'];
 
             if ($email == $dbEmail) {
-                // Verify password with salted hash which consists of pw and last login
+                // Verify password
                 if (password_verify($pw, $dbPw)) {
                     $this->updateUser($userId, $pw);
                     $_SESSION['USER'] = $userId; // Set user session

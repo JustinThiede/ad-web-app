@@ -51,7 +51,7 @@ class Model
      *
      * Deletes LDAP users
      *
-     * @param  string $dn the dn of the object
+     * @param  string $dn the DN of the object
      * @return bool
      */
     public function deleteUser(string $dn):bool
@@ -66,7 +66,7 @@ class Model
      * @param  string $firstName firstname of the user
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user
-     * @param  array $memberOf the groups the user belongs to
+     * @param  array  $memberOf the groups the user belongs to
      * @param  string $pw the password of the user
      * @return bool
      */

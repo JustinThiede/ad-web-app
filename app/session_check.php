@@ -14,7 +14,7 @@
 
 session_start();
 
-if(isset($_SESSION['USER'])) {
+if (isset($_SESSION['USER'])) {
 	echo json_encode('true');
 } else {
 	echo json_encode('false');

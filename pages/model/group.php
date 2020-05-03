@@ -52,7 +52,7 @@ class Model
      *
      * Deletes LDAP groups
      *
-     * @param  string $dn the dn of the object
+     * @param  string $dn the DN of the object
      * @return bool
      */
     public function deleteGroup(string $dn):bool

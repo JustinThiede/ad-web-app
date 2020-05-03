@@ -100,7 +100,7 @@ class LDAP
     public function searchGroups(): array
     {
         $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
-        $filter    = '(objectClass=group)'; // Only people and exclude the user that the webapp uses
+        $filter    = '(objectClass=group)'; // Only groups
         $attr      = array('DN','CN','memberof', 'member');
         $sr        = ldap_search($this->con, $base_dn, $filter);
         $searchRes = ldap_get_entries($this->con, $sr);
@@ -125,10 +125,10 @@ class LDAP
 
     /**
      *
-     * Searches for specific user in the LDAP server
+     * Searches for specific group in the LDAP server
      *
      * @param string $cn The users CN
-     * @return array $user Found user
+     * @return array $group Found group
      */
     public function searchGroup(string $cn): array
     {
@@ -149,12 +149,12 @@ class LDAP
 
     /**
      *
-     * Create new object in LDAP server
+     * Create new user in LDAP server
      *
      * @param  string $firstName firstname of the user
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user
-     * @param  array $memberOf the groups the user belongs to
+     * @param  array  $memberOf the groups the user belongs to
      * @param  string $pw the password of the user
      * @return bool
      */
@@ -175,15 +175,7 @@ class LDAP
         $ldaprecord['objectclass'][3]     = 'user';
         $ldaprecord['UserAccountControl'] = '512';
 
-        if (!ldap_add($this->con, $dn, $ldaprecord)) {
-            return false;
-        }
-
-        foreach ($memberOf as $group) {
-            $this->addMember($cn, $group);
-        }
-
-        return true;
+        return $this->saveCreates($dn, $cn, $ldaprecord, $memberOf);
     }
 
     /**
@@ -212,17 +204,29 @@ class LDAP
             $ldaprecord['groupType'] = $groupType;
         }
 
+        return $this->saveCreates($dn, $cn, $ldaprecord, $memberOf);
+    }
+
+    /**
+     *
+     * Save created objects
+     *
+     * @param  string $dn The DN of the object
+     * @param  string $cn The CN of the object
+     * @param  array  $ldaprecord The attributes of the object
+     * @param  array  $memberOf The groups the object belongs to
+     * @return bool
+     */
+    private function saveCreates(string $dn, string $cn, array $ldaprecord, array $memberOf): bool
+    {
         if (!ldap_add($this->con, $dn, $ldaprecord)) {
             return false;
         }
 
-        foreach ($memberOf as $group) {
-            $this->addMember($cn, $group);
-        }
+        empty($memberOf) ?: $this->modifyMember($cn, $memberOf, 'add'); // Add member to object
 
         return true;
     }
-
 
     /**
      *
@@ -232,7 +236,7 @@ class LDAP
      * @param  string $firstName firstname of the user
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user
-     * @param  array  $memberOf The group the user belongs to
+     * @param  array  $memberOf The groups the user belongs to
      * @param  array  $removeMember The groups the user is beeing removed from
      * @param  string $pw the password of the user
      * @return bool
@@ -252,49 +256,46 @@ class LDAP
             $ldaprecord['unicodepwd'] = $uniPw;
         }
 
-        if (!ldap_mod_replace($this->con, $dn, $ldaprecord)) {
-            return false;
-        }
-
-        // Change CN needs to be after replace otherwise DN is wrong
-        if (!ldap_rename($this->con, $dn, $newRdn, 'CN=Users, DC=smirnyag, DC=ch', TRUE)) {
-            return false;
-        }
-
-        // First remove then add incase user added back a group that he was removed from
-        if (!empty($removeMember)) {
-            foreach ($removeMember as $group) {
-                $this->removeMember($cn, $group);
-            }
-        }
-
-        foreach ($memberOf as $group) {
-            $this->addMember($cn, $group);
-        }
-
-        return true;
+        return $this->saveUpdates($dn, $cn, $newRdn, $ldaprecord, $memberOf, $removeMember);
     }
 
     /**
      *
-     * Create new group in LDAP server
+     * Update group on LDAP server
      *
-     * @param  string $dn The DN of the user
-     * @param  string $cn The cn of the user
-     * @param  string $groupType The type of the user
-     * @param  array  $memberOf The group the group belongs to
+     * @param  string $dn The DN of the group
+     * @param  string $cn The CN of the group
+     * @param  string $groupType The type of the group
+     * @param  array  $memberOf The groups the group belongs to
      * @param  array  $removeMember The groups the group is beeing removed from
      * @return bool
      */
     public function updateGroup(string $dn, string $cn, string $groupType, array $memberOf, array $removeMember): bool
     {
-        $newRdn                          = 'CN=' . $cn; // Set new cn for user
+        $newRdn                          = 'CN=' . $cn; // Set new CN for user
         $ldaprecord['sAMAccountName']    = $cn;
 
         if ($groupType == 2) {
             $ldaprecord['groupType'] = $groupType;
         }
 
+        return $this->saveUpdates($dn, $cn, $newRdn, $ldaprecord, $memberOf, $removeMember);
+    }
+
+    /**
+     *
+     * Save changes made to object
+     *
+     * @param  string $dn The DN of the object
+     * @param  string $cn The CN of the object
+     * @param  string $newRdn The new CN of the object
+     * @param  array  $ldaprecord The attributes of the object
+     * @param  array  $memberOf The group the object belongs to
+     * @param  array  $removeMember The groups the group is beeing removed from
+     * @return bool
+     */
+    private function saveUpdates(string $dn, string $cn, string $newRdn, array $ldaprecord, array $memberOf, array $removeMember): bool
+    {
         if (!ldap_mod_replace($this->con, $dn, $ldaprecord)) {
             return false;
         }
@@ -304,50 +305,50 @@ class LDAP
             return false;
         }
 
-        // First remove then add incase user added back a group that he was removed from
-        if (!empty($removeMember)) {
-            foreach ($removeMember as $group) {
-                $this->removeMember($cn, $group);
-            }
-        }
-
-        foreach ($memberOf as $group) {
-            $this->addMember($cn, $group);
-        }
+        empty($removeMember) ?: $this->modifyMember($cn, $removeMember, 'remove'); // First remove then add incase user added back a group that he was removed from
+        empty($memberOf) ?: $this->modifyMember($cn, $memberOf, 'add'); // Add member to group
 
         return true;
     }
 
     /**
      *
-     * Add member to a group
+     * Delete object
      *
-     * @param  string $cn The CN of the object beeing added to group
-     * @param  string $group The group thats beeing added to
-     * @return void
+     * @param  string $dn The object to delete
+     * @return bool
      */
-    public function addMember(string $cn, string $group): void
+    public function deleteObject(string $dn): bool
     {
-        $groupName           = 'CN=' . $group . ', CN=Users, DC=smirnyag, DC=ch';
-        $groupInfo['member'] = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch'; // User's DN is added to group's 'member' array
-
-        ldap_mod_add($this->con, $groupName, $groupInfo);
+        return ldap_delete($this->con, $dn);
     }
 
     /**
      *
-     * Remove member from a group
+     * Add or remove members from a group
      *
-     * @param  string $cn The CN of the object beeing added to group
-     * @param  string $group The group thats beeing added to
+     * @param  string $cn The CN of the object beeing added or removed from the group
+     * @param  string $groups The groups that are beeing modified
+     * @param  string $action Remove or add to group
      * @return void
      */
-    public function removeMember(string $cn, string $group): void
+    private function modifyMember(string $cn, array $groups, string $action): void
     {
-        $groupName           = 'CN=' . $group . ', CN=Users, DC=smirnyag, DC=ch';
         $groupInfo['member'] = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch'; // User's DN is added to group's 'member' array
 
-        ldap_mod_del($this->con, $groupName, $groupInfo);
+        foreach ($groups as $group) {
+            $groupName = 'CN=' . $group . ', CN=Users, DC=smirnyag, DC=ch';
+
+            switch ($action) {
+                case 'add':
+                    ldap_mod_add($this->con, $groupName, $groupInfo);
+                    break;
+
+                case 'remove':
+                    ldap_mod_del($this->con, $groupName, $groupInfo);
+                    break;
+            }
+        }
     }
 
     /**
@@ -391,17 +392,5 @@ class LDAP
         }
 
         return true;
-    }
-
-    /**
-     *
-     * Delete object
-     *
-     * @param  string $dn The object to delete
-     * @return bool
-     */
-    public function deleteObject(string $dn): bool
-    {
-        return ldap_delete($this->con, $dn);
     }
 }
