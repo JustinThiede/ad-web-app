@@ -29,11 +29,11 @@
                             <select class="groups" name="memberOf[]" multiple>
                                 <?php
                                     $ldap     = new LDAP();
-                                    $memberOf = explode(';', $data['memberOf']);
+                                    $memberOf = explode(';<br>', $data['memberOf']);
 
                                     foreach ($ldap->searchGroups() as $group) {
                                 ?>
-                                <option value="<?php echo $group['dn']; ?>" <?php if (in_array($group['dn'], $memberOf)): echo 'selected'; endif; ?>><?php echo $group['cn'] ?></option>
+                                <option value="<?php echo $group['cn']; ?>" <?php if (in_array($group['cn'], $memberOf)): echo 'selected'; endif; ?>><?php echo $group['cn'] ?></option>
                                 <?php
                                     }
                                 ?>

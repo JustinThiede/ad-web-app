@@ -52,21 +52,39 @@ class LDAP
                 continue;
             }
 
-            if (isset($res['memberof']['count'])) {
-               unset($res['memberof']['count']); // Get rid of count field for implode of groups
-            }
-
             $users[] = [
                 'cn'        => $res['cn'][0] ?? '',
                 'dn'        => $res['dn'] ?? '',
                 'loginName' => $res['userprincipalname'][0] ?? '',
                 'firstName' => $res['givenname'][0] ?? '',
                 'lastName'  => $res['sn'][0] ?? '',
-                'memberOf'  => !empty($res['memberof']) ? implode(';<br>', $res['memberof']) . ';' : ''
+                'memberOf'  => !empty($res['memberof']) ? $this->formatMember($res['memberof']) : ''
             ]; // Array for further processing
         };
 
         return $users;
+    }
+
+    /**
+     *
+     * Outputs the users and groups as their name instead of DN
+     *
+     * @param  array $groups The found groups DN
+     * @return string $memberCn All user and group names
+     */
+    private function formatMember(array $groups): string
+    {
+        $memberCn = '';
+
+        if (isset($groups['count'])) {
+           unset($groups['count']); // Get rid of count field for implode of groups
+        }
+
+        foreach ($groups as $member) {
+            $memberCn .= str_replace('CN=', '', explode(',', $member)[0]) . ';<br>';
+        }
+
+        return $memberCn;
     }
 
     /**
@@ -89,7 +107,7 @@ class LDAP
             'lastName'  => $searchRes['sn'][0],
             'loginName' => $searchRes['samaccountname'][0],
             'dn'        => $searchRes['dn'],
-            'memberOf'  => !empty($searchRes['memberof']) ? implode(';', $searchRes['memberof']) . ';' : ''
+            'memberOf'  => !empty($searchRes['memberof']) ? $this->formatMember($searchRes['memberof']) : ''
         ];
 
         return $user;
@@ -116,19 +134,11 @@ class LDAP
                 continue;
             }
 
-            if (isset($res['memberof']['count'])) {
-               unset($res['memberof']['count']); // Get rid of count field for implode of groups
-            }
-
-            if (isset($res['member']['count'])) {
-               unset($res['member']['count']); // Get rid of count field for implode of members
-            }
-
             $groups[] = [
                 'cn'       => $res['cn'][0] ?? '',
                 'dn'       => $res['dn'] ?? '',
-                'memberOf' => !empty($res['memberof']) ? implode(';<br>', $res['memberof']) . ';' : '',
-                'member'   => !empty($res['member']) ? implode(';<br>', $res['member']) . ';' : ''
+                'memberOf' => !empty($res['memberof']) ? $this->formatMember($res['memberof']) : '',
+                'member'   => !empty($res['member']) ? $this->formatMember($res['member']) : ''
             ]; // Array for further processing
         };
 
@@ -153,7 +163,7 @@ class LDAP
             'cn'        => $cn,
             'dn'        => $searchRes['dn'],
             'groupType' => $searchRes['grouptype'][0] == 2 ? 2 : 1,
-            'memberOf'  => !empty($searchRes['memberof']) ? implode(';', $searchRes['memberof']) . ';' : ''
+            'memberOf'  => !empty($searchRes['memberof']) ? $this->formatMember($searchRes['memberof']) : ''
         ];
 
         return $group;
@@ -310,7 +320,7 @@ class LDAP
         foreach ($memberOf as $group) {
             $this->addMember($cn, $group);
         }
-        
+
         return true;
     }
 
@@ -324,7 +334,7 @@ class LDAP
      */
     public function addMember(string $cn, string $group): void
     {
-        $groupName           = $group;
+        $groupName           = 'CN=' . $group . ', CN=Users, DC=smirnyag, DC=ch';
         $groupInfo['member'] = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch'; // User's DN is added to group's 'member' array
 
         ldap_mod_add($this->con, $groupName, $groupInfo);
