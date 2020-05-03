@@ -92,7 +92,7 @@ class Controller
                 return;
             }
 
-            $created = $this->model->createGroup($this->cn, $this->groupType, $this->memberOf);
+            $created = $this->model->createGroup($this->cn, $this->groupType, $this->memberOf ?? []);
 
             if (!$created) {
                 $this->view->getview('group', 'add', 'Die Gruppe konnte nicht hinzugefügt werden.');
@@ -100,7 +100,7 @@ class Controller
                 $this->view->getview('group', 'add', 'Die Gruppe wurde erfolgreich hinzugefügt.');
             }
         } else {
-            $updateGroup = $this->model->updateGroup($this->edit, $this->cn, $this->groupType, $this->memberOf);
+            $updateGroup = $this->model->updateGroup($this->edit, $this->cn, $this->groupType, $this->memberOf ?? [], $this->removeMember ?? []);
 
             if (!$updateGroup) {
                 $this->view->getview('group', 'add', 'Die Gruppe konnte nicht geändert werden.');

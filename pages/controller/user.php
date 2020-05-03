@@ -104,7 +104,7 @@ class Controller
                 return;
             }
 
-            $created = $this->model->createUser($this->firstName, $this->lastName, $this->loginName, $this->memberOf, $this->pw);
+            $created = $this->model->createUser($this->firstName, $this->lastName, $this->loginName, $this->memberOf ?? [], $this->pw);
 
             if (!$created) {
                 $this->view->getview('user', 'add', 'Der Benutzer konnte nicht hinzugefügt werden.');
@@ -129,7 +129,7 @@ class Controller
                 $this->pw = '';
             }
 
-            $updatedUser = $this->model->updateUser($this->edit, $this->firstName, $this->lastName, $this->loginName, $this->memberOf, $this->pw);
+            $updatedUser = $this->model->updateUser($this->edit, $this->firstName, $this->lastName, $this->loginName, $this->memberOf ?? [], $this->removeMember ?? [], $this->pw);
 
             if (!$updatedUser) {
                 $this->view->getview('user', 'add', 'Der Benutzer konnte nicht geändert werden.');

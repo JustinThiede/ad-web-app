@@ -196,6 +196,10 @@ table {
     width: 300px;
 }
 
+.groups-remove {
+    display: none;
+}
+
 input[type=checkbox] {
     width: auto;
 }

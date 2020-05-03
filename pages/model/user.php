@@ -84,12 +84,13 @@ class Model
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user
      * @param  array  $memberOf The groups the user belongs to
+     * @param  array  $removeMember The groups the user is beeing removed from
      * @param  string $pw the password of the user
      * @return bool
      */
-    public function updateUser(string $dn, string $firstName, string $lastName, string $loginName, array $memberOf, string $pw): bool
+    public function updateUser(string $dn, string $firstName, string $lastName, string $loginName, array $memberOf, array $removeMember = [], string $pw): bool
     {
-        return $this->ldap->updateUser($dn, $firstName, $lastName, $loginName, $memberOf, $pw);
+        return $this->ldap->updateUser($dn, $firstName, $lastName, $loginName, $memberOf, $removeMember, $pw);
     }
 
     /**

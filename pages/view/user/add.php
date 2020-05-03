@@ -38,6 +38,7 @@
                                     }
                                 ?>
                             </select>
+                            <select class="groups-remove" name="removeMember[]" multiple></select>
                             <?php if (isset($data['dn'])): ?>
                                 Passwort ändern:<br>
                                 <input type="checkbox" name="changePw" value="true">

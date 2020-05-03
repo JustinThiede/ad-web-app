@@ -67,28 +67,6 @@ class LDAP
 
     /**
      *
-     * Outputs the users and groups as their name instead of DN
-     *
-     * @param  array $groups The found groups DN
-     * @return string $memberCn All user and group names
-     */
-    private function formatMember(array $groups): string
-    {
-        $memberCn = '';
-
-        if (isset($groups['count'])) {
-           unset($groups['count']); // Get rid of count field for implode of groups
-        }
-
-        foreach ($groups as $member) {
-            $memberCn .= str_replace('CN=', '', explode(',', $member)[0]) . ';<br>';
-        }
-
-        return $memberCn;
-    }
-
-    /**
-     *
      * Searches for specific user in the LDAP server
      *
      * @param string $cn The users CN
@@ -255,10 +233,11 @@ class LDAP
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user
      * @param  array  $memberOf The group the user belongs to
+     * @param  array  $removeMember The groups the user is beeing removed from
      * @param  string $pw the password of the user
      * @return bool
      */
-    public function updateUser(string $dn, string $firstName, string $lastName, string $loginName, array $memberOf, string $pw): bool
+    public function updateUser(string $dn, string $firstName, string $lastName, string $loginName, array $memberOf, array $removeMember, string $pw): bool
     {
         $cn                              = $firstName . ' ' . $lastName;
         $newRdn                          = 'cn=' . $cn; // Set new cn for user
@@ -282,6 +261,13 @@ class LDAP
             return false;
         }
 
+        // First remove then add incase user added back a group that he was removed from
+        if (!empty($removeMember)) {
+            foreach ($removeMember as $group) {
+                $this->removeMember($cn, $group);
+            }
+        }
+
         foreach ($memberOf as $group) {
             $this->addMember($cn, $group);
         }
@@ -297,9 +283,10 @@ class LDAP
      * @param  string $cn The cn of the user
      * @param  string $groupType The type of the user
      * @param  array  $memberOf The group the group belongs to
+     * @param  array  $removeMember The groups the group is beeing removed from
      * @return bool
      */
-    public function updateGroup(string $dn, string $cn, string $groupType, array $memberOf): bool
+    public function updateGroup(string $dn, string $cn, string $groupType, array $memberOf, array $removeMember): bool
     {
         $newRdn                          = 'CN=' . $cn; // Set new cn for user
         $ldaprecord['sAMAccountName']    = $cn;
@@ -317,6 +304,13 @@ class LDAP
             return false;
         }
 
+        // First remove then add incase user added back a group that he was removed from
+        if (!empty($removeMember)) {
+            foreach ($removeMember as $group) {
+                $this->removeMember($cn, $group);
+            }
+        }
+
         foreach ($memberOf as $group) {
             $this->addMember($cn, $group);
         }
@@ -326,7 +320,7 @@ class LDAP
 
     /**
      *
-     * Create new object in LDAP server
+     * Add member to a group
      *
      * @param  string $cn The CN of the object beeing added to group
      * @param  string $group The group thats beeing added to
@@ -338,6 +332,44 @@ class LDAP
         $groupInfo['member'] = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch'; // User's DN is added to group's 'member' array
 
         ldap_mod_add($this->con, $groupName, $groupInfo);
+    }
+
+    /**
+     *
+     * Remove member from a group
+     *
+     * @param  string $cn The CN of the object beeing added to group
+     * @param  string $group The group thats beeing added to
+     * @return void
+     */
+    public function removeMember(string $cn, string $group): void
+    {
+        $groupName           = 'CN=' . $group . ', CN=Users, DC=smirnyag, DC=ch';
+        $groupInfo['member'] = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch'; // User's DN is added to group's 'member' array
+
+        ldap_mod_del($this->con, $groupName, $groupInfo);
+    }
+
+    /**
+     *
+     * Outputs the users and groups as their name instead of DN
+     *
+     * @param  array $groups The found groups DN
+     * @return string $memberCn All user and group names
+     */
+    private function formatMember(array $groups): string
+    {
+        $memberCn = '';
+
+        if (isset($groups['count'])) {
+           unset($groups['count']); // Get rid of count field for implode of groups
+        }
+
+        foreach ($groups as $member) {
+            $memberCn .= str_replace('CN=', '', explode(',', $member)[0]) . ';<br>';
+        }
+
+        return $memberCn;
     }
 
     /**

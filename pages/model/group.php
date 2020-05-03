@@ -82,11 +82,12 @@ class Model
      * @param  string $cn The CN of the group
      * @param  string $groupType The type of the group
      * @param  array  $memberOf The group the group belongs to
+     * @param  array  $removeMember The groups the group is beeing removed from
      * @return bool
      */
-    public function updateGroup(string $dn, string $cn, string $groupType, array $memberOf): bool
+    public function updateGroup(string $dn, string $cn, string $groupType, array $memberOf, array $removeMember): bool
     {
-        return $this->ldap->updateGroup($dn, $cn, $groupType, $memberOf);
+        return $this->ldap->updateGroup($dn, $cn, $groupType, $memberOf, $removeMember);
     }
 
     /**

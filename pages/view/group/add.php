@@ -23,6 +23,7 @@
                             <input type="radio" name="groupType" value="2" required <?php if (isset($data['groupType']) && $data['groupType'] == 2): echo 'checked'; endif; ?>>
                             <label for="2">Distribution</label><br>
                             <br>
+                            Mitglied von:
                             <select class="groups" name="memberOf[]" multiple>
                                 <?php
                                     $ldap     = new LDAP();
@@ -35,6 +36,7 @@
                                     }
                                 ?>
                             </select>
+                            <select class="groups-remove" name="removeMember[]" multiple></select>
                             <button class="ex-buttons mt-2" type="submit" value="Submit">Speichern</button>
                         </form>
                     <?php endif; ?>

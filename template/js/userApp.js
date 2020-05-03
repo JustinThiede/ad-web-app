@@ -30,6 +30,11 @@ $(function(){
         dropdownMaxItems: 1000,
     });
 
+    // Add removed groups to seperate multi select for backend processing
+    $('.groups').on('tokenize:tokens:remove',function(e, value){
+        $('.groups-remove').append('<option value="' + value + '" selected> ' + value + ' </option>')
+    });
+
     $('.back-button').on('click', goBack);
 
     $('[name="changePw"]').on('click', togglePw);
