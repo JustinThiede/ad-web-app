@@ -100,7 +100,7 @@ class Controller
                 $this->view->getview('group', 'add', 'Die Gruppe wurde erfolgreich hinzugefügt.');
             }
         } else {
-            $updateGroup = $this->model->updateGroup($this->edit, $this->cn, $this->groupType);
+            $updateGroup = $this->model->updateGroup($this->edit, $this->cn, $this->groupType, $this->memberOf);
 
             if (!$updateGroup) {
                 $this->view->getview('group', 'add', 'Die Gruppe konnte nicht geändert werden.');

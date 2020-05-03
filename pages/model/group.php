@@ -81,11 +81,12 @@ class Model
      * @param  string $dn The DN of the group
      * @param  string $cn The CN of the group
      * @param  string $groupType The type of the group
+     * @param  array  $memberOf The group the group belongs to
      * @return bool
      */
-    public function updateGroup(string $dn, string $cn, string $groupType): bool
+    public function updateGroup(string $dn, string $cn, string $groupType, array $memberOf): bool
     {
-        return $this->ldap->updateGroup($dn, $cn, $groupType);
+        return $this->ldap->updateGroup($dn, $cn, $groupType, $memberOf);
     }
 
     /**

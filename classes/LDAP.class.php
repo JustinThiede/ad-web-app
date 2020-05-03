@@ -192,9 +192,7 @@ class LDAP
         }
 
         foreach ($memberOf as $group) {
-            if (!$this->addMember($cn, $group)) {
-                return false;
-            }
+            $this->addMember($cn, $group);
         }
 
         return true;
@@ -231,9 +229,7 @@ class LDAP
         }
 
         foreach ($memberOf as $group) {
-            if (!$this->addMember($cn, $group)) {
-                return false;
-            }
+            $this->addMember($cn, $group);
         }
 
         return true;
@@ -248,12 +244,14 @@ class LDAP
      * @param  string $firstName firstname of the user
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user
+     * @param  array  $memberOf The group the user belongs to
      * @param  string $pw the password of the user
      * @return bool
      */
-    public function updateUser(string $dn, string $firstName, string $lastName, string $loginName, string $pw): bool
+    public function updateUser(string $dn, string $firstName, string $lastName, string $loginName, array $memberOf, string $pw): bool
     {
-        $newRdn                          = 'cn=' . $firstName . ' ' . $lastName; // Set new cn for user
+        $cn                              = $firstName . ' ' . $lastName;
+        $newRdn                          = 'cn=' . $cn; // Set new cn for user
         $ldaprecord['givenName']         = $firstName;
         $ldaprecord['sn']                = $lastName;
         $ldaprecord['userprincipalname'] = $loginName . '@' . CONF_LDAP_DOMAIN;
@@ -274,6 +272,10 @@ class LDAP
             return false;
         }
 
+        foreach ($memberOf as $group) {
+            $this->addMember($cn, $group);
+        }
+
         return true;
     }
 
@@ -284,9 +286,10 @@ class LDAP
      * @param  string $dn The DN of the user
      * @param  string $cn The cn of the user
      * @param  string $groupType The type of the user
+     * @param  array  $memberOf The group the group belongs to
      * @return bool
      */
-    public function updateGroup(string $dn, string $cn, string $groupType): bool
+    public function updateGroup(string $dn, string $cn, string $groupType, array $memberOf): bool
     {
         $newRdn                          = 'CN=' . $cn; // Set new cn for user
         $ldaprecord['sAMAccountName']    = $cn;
@@ -304,6 +307,10 @@ class LDAP
             return false;
         }
 
+        foreach ($memberOf as $group) {
+            $this->addMember($cn, $group);
+        }
+        
         return true;
     }
 
@@ -313,14 +320,14 @@ class LDAP
      *
      * @param  string $cn The CN of the object beeing added to group
      * @param  string $group The group thats beeing added to
-     * @return bool
+     * @return void
      */
-    public function addMember(string $cn, string $group): bool
+    public function addMember(string $cn, string $group): void
     {
         $groupName           = $group;
         $groupInfo['member'] = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch'; // User's DN is added to group's 'member' array
 
-        return ldap_mod_add($this->con, $groupName, $groupInfo);
+        ldap_mod_add($this->con, $groupName, $groupInfo);
     }
 
     /**
