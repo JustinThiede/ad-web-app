@@ -66,11 +66,12 @@ class Model
      *
      * @param  string $cn CN of group
      * @param  string $groupType Type of the group
+     * @param  array  $memberOf The groups the group belongs to
      * @return bool
      */
-    public function createGroup(string $cn, string $groupType): bool
+    public function createGroup(string $cn, string $groupType, array $memberOf): bool
     {
-        return $this->ldap->createGroup($cn, $groupType);
+        return $this->ldap->createGroup($cn, $groupType, $memberOf);
     }
 
     /**

@@ -23,6 +23,18 @@
                             <input type="radio" name="groupType" value="2" required <?php if (isset($data['groupType']) && $data['groupType'] == 2): echo 'checked'; endif; ?>>
                             <label for="2">Distribution</label><br>
                             <br>
+                            <select class="groups" name="memberOf[]" multiple>
+                                <?php
+                                    $ldap     = new LDAP();
+                                    $memberOf = explode(';', $data['memberOf']);
+
+                                    foreach ($ldap->searchGroups() as $group) {
+                                ?>
+                                <option value="<?php echo $group['dn']; ?>" <?php if (in_array($group['dn'], $memberOf)): echo 'selected'; endif; ?>><?php echo $group['cn'] ?></option>
+                                <?php
+                                    }
+                                ?>
+                            </select>
                             <button class="ex-buttons mt-2" type="submit" value="Submit">Speichern</button>
                         </form>
                     <?php endif; ?>

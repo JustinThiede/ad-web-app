@@ -92,7 +92,7 @@ class Controller
                 return;
             }
 
-            $created = $this->model->createGroup($this->cn, $this->groupType);
+            $created = $this->model->createGroup($this->cn, $this->groupType, $this->memberOf);
 
             if (!$created) {
                 $this->view->getview('group', 'add', 'Die Gruppe konnte nicht hinzugefügt werden.');

@@ -146,14 +146,14 @@ class LDAP
     {
         $base_dn   = 'CN=Users, DC=smirnyag, DC=ch';
         $filter    = '(CN=' . $cn . ')';
-        $attr      = array('groupType');
-        $sr        = ldap_search($this->con, $base_dn, $filter, $attr);
+        $sr        = ldap_search($this->con, $base_dn, $filter);
         $searchRes = ldap_get_entries($this->con, $sr)[0]; // Only one result is returned
 
         $group     = [
             'cn'        => $cn,
             'dn'        => $searchRes['dn'],
-            'groupType' => $searchRes['grouptype'][0] == 2 ? 2 : 1
+            'groupType' => $searchRes['grouptype'][0] == 2 ? 2 : 1,
+            'memberOf'  => !empty($searchRes['memberof']) ? implode(';', $searchRes['memberof']) . ';' : ''
         ];
 
         return $group;
@@ -206,9 +206,10 @@ class LDAP
      *
      * @param  string $cn CN of the group
      * @param  string $groupType The type of the group
+     * @param  array  $memberOf The groups the group belongs to
      * @return bool
      */
-    public function createGroup(string $cn, string $groupType): bool
+    public function createGroup(string $cn, string $groupType, array $memberOf): bool
     {
         $dn                           = 'CN=' . $cn . ', CN=Users, DC=smirnyag, DC=ch';
         $ldaprecord['cn']             = $cn;
@@ -225,7 +226,17 @@ class LDAP
             $ldaprecord['groupType'] = $groupType;
         }
 
-        return ldap_add($this->con, $dn, $ldaprecord);
+        if (!ldap_add($this->con, $dn, $ldaprecord)) {
+            return false;
+        }
+
+        foreach ($memberOf as $group) {
+            if (!$this->addMember($cn, $group)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 

@@ -31,8 +31,6 @@
                                     $ldap     = new LDAP();
                                     $memberOf = explode(';', $data['memberOf']);
 
-                                    print_r($memberOf);
-
                                     foreach ($ldap->searchGroups() as $group) {
                                 ?>
                                 <option value="<?php echo $group['dn']; ?>" <?php if (in_array($group['dn'], $memberOf)): echo 'selected'; endif; ?>><?php echo $group['cn'] ?></option>
