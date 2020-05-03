@@ -14,7 +14,7 @@ $(function(){
     * Needed for browser history.
     */
     $.ajax({
-        url : '/app/session_check.php',
+        url : '/app/sessionCheck.php',
         dataType : 'JSON',
         method : 'POST',
 
