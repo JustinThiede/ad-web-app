@@ -66,12 +66,13 @@ class Model
      * @param  string $firstName firstname of the user
      * @param  string $lastName lastname of the user
      * @param  string $loginName the loginname of the user
+     * @param  array $memberOf the groups the user belongs to
      * @param  string $pw the password of the user
      * @return bool
      */
-    public function createUser(string $firstName, string $lastName, string $loginName, string $pw): bool
+    public function createUser(string $firstName, string $lastName, string $loginName, array $memberOf, string $pw): bool
     {
-        return $this->ldap->createObject($firstName, $lastName, $loginName, $pw);
+        return $this->ldap->createUser($firstName, $lastName, $loginName, $memberOf, $pw);
     }
 
     /**
@@ -87,7 +88,7 @@ class Model
      */
     public function updateUser(string $dn, string $firstName, string $lastName, string $loginName, string $pw): bool
     {
-        return $this->ldap->updateObject($dn, $firstName, $lastName, $loginName, $pw);
+        return $this->ldap->updateUser($dn, $firstName, $lastName, $loginName, $pw);
     }
 
     /**

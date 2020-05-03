@@ -104,7 +104,7 @@ class Controller
                 return;
             }
 
-            $created = $this->model->createUser($this->firstName, $this->lastName, $this->loginName, $this->pw);
+            $created = $this->model->createUser($this->firstName, $this->lastName, $this->loginName, $this->memberOf, $this->pw);
 
             if (!$created) {
                 $this->view->getview('user', 'add', 'Der Benutzer konnte nicht hinzugefügt werden.');

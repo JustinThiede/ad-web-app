@@ -25,6 +25,11 @@ $(function(){
         },
     });
 
+    // Calls the tokenize2 plugin
+    $('.groups').tokenize2({
+        dropdownMaxItems: 1000,
+    });
+
     $('.back-button').on('click', goBack);
 
     $('[name="changePw"]').on('click', togglePw);

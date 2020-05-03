@@ -14,6 +14,7 @@
                     <?php if (isset($data) && gettype($data) != 'array'): echo $data; else:?>
                         <form action="/user/add" method="POST" enctype="multipart/form-data" id="usereditor">
                             <input type="hidden" name="edit" value="<?php if (isset($data['dn'])): echo $data['dn']; endif; ?>">
+
                             Vorname:<br>
                             <input class="form-control form-inputs" type="text" name="firstName" value="<?php if (isset($data['firstName'])): echo $data['firstName']; endif; ?>" required>
                             <br>
@@ -24,6 +25,21 @@
                             <input class="form-control inline form-inputs" type="text" name="loginName" value="<?php if (isset($data['loginName'])): echo $data['loginName']; endif; ?>" required>
                             <input class="form-control inline form-inputs" type="text" name="domain" value="@smirnyag.ch" disabled>
                             <br><br>
+                            Mitglied von:
+                            <select class="groups" name="memberOf[]" multiple>
+                                <?php
+                                    $ldap     = new LDAP();
+                                    $memberOf = explode(';', $data['memberOf']);
+
+                                    print_r($memberOf);
+
+                                    foreach ($ldap->searchGroups() as $group) {
+                                ?>
+                                <option value="<?php echo $group['dn']; ?>" <?php if (in_array($group['dn'], $memberOf)): echo 'selected'; endif; ?>><?php echo $group['cn'] ?></option>
+                                <?php
+                                    }
+                                ?>
+                            </select>
                             <?php if (isset($data['dn'])): ?>
                                 Passwort ändern:<br>
                                 <input type="checkbox" name="changePw" value="true">
