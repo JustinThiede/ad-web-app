@@ -14,7 +14,7 @@
                     <?php if (isset($data) && gettype($data) != 'array'): echo $data; else:?>
                         <form action="/group/add" method="POST" enctype="multipart/form-data" id="usereditor">
                             <input type="hidden" name="edit" value="<?php if (isset($data['dn'])): echo $data['dn']; endif; ?>">
-                            CN:<br>
+                            Name:<br>
                             <input class="form-control form-inputs" type="text" name="cn" value="<?php if (isset($data['cn'])): echo $data['cn']; endif; ?>" required>
                             <br>
                             Gruppenart:<br>
