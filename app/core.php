@@ -5,17 +5,6 @@
  * MVC-suitable format
  */
 
-/*
-*
-* debug mode:
-* toggles if the errors are displayed or hidden
-* 0 = errors are not displayed(Production value)
-* 1 = display errors
-*/
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('session.gc_maxlifetime', 3600); // Change maxlifetime that it fits the last activity
-
 
 //Config with global used constants
 include 'config.php';
